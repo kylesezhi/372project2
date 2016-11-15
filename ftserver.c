@@ -11,6 +11,9 @@
 #include <signal.h>
 #include <time.h>
 
+#include <errno.h>
+#include <netdb.h>
+
 void error(const char *msg)
 {
     perror(msg);
@@ -97,13 +100,37 @@ int main(int argc, char *argv[])
       if(strcmp(command[0], "-l") == 0) { // list
         printf("list\n");
         
-        struct sockaddr_in client_addr;
-        socklen_t addrlen;
-        getpeername(controlsockfd, (struct sockaddr *) &client_addr, &addrlen);
-        datasockfd = socket(AF_INET, SOCK_STREAM, 0);
-        printf("portnum %d\n", atoi(command[1]));
-        client_addr.sin_port = htons(atoi(command[1]));
-        connect(datasockfd, (struct sockaddr *) &client_addr, addrlen);
+        struct addrinfo hints, *res;
+        int datasockfd;
+
+        // first, load up address structs with getaddrinfo():
+
+        memset(&hints, 0, sizeof hints);
+        hints.ai_family = AF_UNSPEC;
+        hints.ai_socktype = SOCK_STREAM;
+
+        getaddrinfo("localhost", command[1], &hints, &res);
+
+        // make a socket:
+
+        datasockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+
+        // connect!
+
+        connect(datasockfd, res->ai_addr, res->ai_addrlen);
+        n = write(datasockfd, "hi there", strlen("hi there"));
+        
+        // struct sockaddr_in client_addr;
+        // socklen_t addrlen;
+        // n = getpeername(controlsockfd, (struct sockaddr *) &client_addr, &addrlen);
+        // if (n == -1) error("ERROR getpeername()");
+        // client_addr.sin_port = htons(atoi(command[1]));
+        // 
+        // datasockfd = socket(AF_INET, SOCK_STREAM, 0);
+        // // printf("datasocketfd: %d controlsockfd: %d\n", datasockfd, controlsockfd);
+        // n = connect(datasockfd, (struct sockaddr *) &client_addr, addrlen);
+        // if (n == -1) error("ERROR connect()");
+        // n = write(datasockfd, "hi there", strlen("hi there"));
         
       } else if (strcmp(command[0], "-g") == 0) { // get [filename]
         printf("get %s\n", command[1]);

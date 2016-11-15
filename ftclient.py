@@ -23,9 +23,12 @@ else:
     controlSocket.send("-g " + args.get[0] + " " + str(args.dataport))
     
 
-dataSocket = socket(AF_INET, SOCK_STREAM)
-dataSocket.bind((serverName, args.dataport))
-dataSocket.listen(1)
+clientSocket = socket(AF_INET, SOCK_STREAM)
+clientSocket.bind((serverName, args.dataport))
+clientSocket.listen(1)
+dataSocket, addr = clientSocket.accept()
+sentence = connectionSocket.recv(1024)
+print(sentence)
 
 
 # response = controlSocket.recv(1024)
