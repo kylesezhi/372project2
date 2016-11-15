@@ -16,10 +16,10 @@ args = parser.parse_args()
 clientSocket = socket(AF_INET, SOCK_STREAM)
 clientSocket.connect((args.serverhost, args.serverport))
 if args.list:
-    clientSocket.send("-l")
+    clientSocket.send("-l " + str(args.dataport))
 else:
-    clientSocket.send("-g " + args.get[0])
+    clientSocket.send("-g " + args.get[0] + " " + str(args.dataport))
     
 response = clientSocket.recv(1024)
-print(response)
+print("server said: " + response)
 clientSocket.close()

@@ -11,9 +11,6 @@
 #include <signal.h>
 #include <time.h>
 
-// TODO
-// make dec work
-
 void error(const char *msg)
 {
     perror(msg);
@@ -22,7 +19,7 @@ void error(const char *msg)
 
 int main(int argc, char *argv[])
 {
-     int sockfd, newsockfd, portno;
+     int sockfd, newsockfd, portno, i, yes;
      socklen_t clilen;
      
      const int BUFFERSIZE = 1000;
@@ -32,10 +29,11 @@ int main(int argc, char *argv[])
      int fp, fp2;
      FILE *file;
      FILE *file2;
-     int c, i, j, bytesread, thisPort, yes, x;
      pid_t spawnpid = -5;
      int randomPorts[8];
      int currentPort = -1;
+     char *found, *string;
+     char command[3][BUFFERSIZE+1];
      
      struct sockaddr_in serv_addr, cli_addr;
      int n, length;
@@ -68,17 +66,18 @@ int main(int argc, char *argv[])
                    (struct sockaddr *) &cli_addr, 
                    &clilen);
        if (newsockfd < 0) error("ERROR on accept");
-            
-      // GIVE RANDOM PORT
-      // bzero(buffer,BUFFERSIZE+1);
-      // snprintf(buffer, 10, "%d", randomPorts[currentPort]);
-      // n = write(newsockfd,buffer,5);
-      // if (n < 0) error("ERROR writing to socket");
       
       // GET HELLO
-      bzero(buffer,10);
-      n = read(newsockfd,buffer,4); // get the body
-      printf("command: %s\n", buffer); //TRACE
+      bzero(buffer,30);
+      n = read(newsockfd,buffer,30); // get the first command
+      string = buffer;
+      i = 0;
+      while( (found = strsep(&string," ")) != NULL ) {
+        strcpy(command[i], found);
+        // printf("%s\n",found);
+        i++;
+      }
+      // printf("%s/%s/%s\n",command[0],command[1],command[2]);
 
       // GET OK
       // bzero(buffer,10);
