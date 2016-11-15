@@ -17,6 +17,24 @@ void error(const char *msg)
     exit(1);
 }
 
+int connectItUp(struct sockaddr_in *serv_addr, int portno, int *yes, struct sockaddr_in *cli_addr, socklen_t *clilen) {
+  int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  if (sockfd < 0) 
+     error("ERROR opening socket");
+  bzero((char *) serv_addr, sizeof(*serv_addr));
+  serv_addr->sin_family = AF_INET;
+  serv_addr->sin_addr.s_addr = INADDR_ANY;
+  serv_addr->sin_port = htons(portno);
+  if (bind(sockfd, (struct sockaddr *) serv_addr,
+           sizeof(*serv_addr)) < 0) 
+           error("ERROR on binding");
+  setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, yes, sizeof(int));
+  listen(sockfd,5);
+  *clilen = sizeof(*cli_addr);
+  
+  return sockfd;
+}
+
 int main(int argc, char *argv[])
 {
      int sockfd, newsockfd, portno, i, yes;
@@ -29,14 +47,11 @@ int main(int argc, char *argv[])
      int fp, fp2;
      FILE *file;
      FILE *file2;
-     pid_t spawnpid = -5;
-     int randomPorts[8];
-     int currentPort = -1;
      char *found, *string;
      char command[3][BUFFERSIZE+1];
-     
      struct sockaddr_in serv_addr, cli_addr;
      int n, length;
+     
      if (argc != 2) {
          fprintf(stderr,"usage: ftserver portnumber\n");
          exit(1);
@@ -78,6 +93,14 @@ int main(int argc, char *argv[])
         i++;
       }
       // printf("%s/%s/%s\n",command[0],command[1],command[2]);
+      if(strcmp(command[0], "-l") == 0) {
+        printf("list\n");
+      } else if (strcmp(command[0], "-g") == 0) {
+        printf("get\n");
+      } else {
+        printf("huh?\n");
+        
+      }
 
       // GET OK
       // bzero(buffer,10);
