@@ -47,6 +47,13 @@ int initiateConnection(int sockfd, struct sockaddr_in *cli_addr, socklen_t *clil
   return newsockfd;
 }
 
+int receiveMessage(char buffer[], int newsockfd) {
+  bzero(buffer,30);
+  int n = read(newsockfd,buffer,30); // get the first command
+
+  return n;
+}
+
 int main(int argc, char *argv[])
 {
      int sockfd, newsockfd, i;
@@ -73,12 +80,12 @@ int main(int argc, char *argv[])
 
      while(1) { // MAIN GAME LOOP lolz
        printf("Waiting for connection\n");
-       
        newsockfd = initiateConnection(sockfd, &cli_addr, &clilen);
       
       // GET COMMAND
-      bzero(buffer,30);
-      n = read(newsockfd,buffer,30); // get the first command
+      n = receiveMessage(buffer, newsockfd);
+      
+       // SPLIT COMMAND
       string = buffer;
       i = 0;
       while( (found = strsep(&string," ")) != NULL ) {
@@ -95,20 +102,13 @@ int main(int argc, char *argv[])
         printf("huh?\n");
         
       }
-
-      // GET OK
-      // bzero(buffer,10);
-      // bzero(header,10);
-      // n = read(newsockfd,header,4); // get the header
-      // n = read(newsockfd,buffer,4); // get the body
       
       close(newsockfd);
 
 
     } // end while(1)
             
-    //  close(newsockfd);
-  //  close(sockfd);
+   close(sockfd); // TODO
      
      return 0; 
 }
