@@ -17,7 +17,7 @@ void error(const char *msg)
     exit(1);
 }
 
-int listenForClient(int portno, struct sockaddr_in *cli_addr, socklen_t *clilen) {
+int setupListen(int portno, struct sockaddr_in *cli_addr, socklen_t *clilen) {
   struct sockaddr_in serv_addr;
   int yes;
 
@@ -38,7 +38,7 @@ int listenForClient(int portno, struct sockaddr_in *cli_addr, socklen_t *clilen)
   return sockfd;
 }
 
-int initiateConnection(int sockfd, struct sockaddr_in *cli_addr, socklen_t *clilen) {
+int acceptConnect(int sockfd, struct sockaddr_in *cli_addr, socklen_t *clilen) {
   int newsockfd = accept(sockfd, 
               (struct sockaddr *) cli_addr, 
               clilen);
@@ -56,7 +56,7 @@ int receiveMessage(char buffer[], int newsockfd) {
 
 int main(int argc, char *argv[])
 {
-     int sockfd, newsockfd, i;
+     int sockfd, controlsockfd, datasockfd, i;
      
      const int BUFFERSIZE = 1000;
      char buffer[BUFFERSIZE+1];
@@ -76,34 +76,43 @@ int main(int argc, char *argv[])
          exit(1);
      }
      
-     sockfd = listenForClient(atoi(argv[1]), &cli_addr, &clilen);
+     sockfd = setupListen(atoi(argv[1]), &cli_addr, &clilen);
 
      while(1) { // MAIN GAME LOOP lolz
        printf("Waiting for connection\n");
-       newsockfd = initiateConnection(sockfd, &cli_addr, &clilen);
+       controlsockfd = acceptConnect(sockfd, &cli_addr, &clilen);
       
       // GET COMMAND
-      n = receiveMessage(buffer, newsockfd);
+      n = receiveMessage(buffer, controlsockfd);
       
        // SPLIT COMMAND
       string = buffer;
       i = 0;
       while( (found = strsep(&string," ")) != NULL ) {
         strcpy(command[i], found);
-        // printf("%s\n",found);
         i++;
       }
-      // printf("%s/%s/%s\n",command[0],command[1],command[2]);
-      if(strcmp(command[0], "-l") == 0) {
+      
+      // EXECUTE COMMAND
+      if(strcmp(command[0], "-l") == 0) { // list
         printf("list\n");
-      } else if (strcmp(command[0], "-g") == 0) {
+        
+        struct sockaddr_in client_addr;
+        socklen_t addrlen;
+        getpeername(controlsockfd, (struct sockaddr *) &client_addr, &addrlen);
+        datasockfd = socket(AF_INET, SOCK_STREAM, 0);
+        printf("portnum %d\n", atoi(command[1]));
+        client_addr.sin_port = htons(atoi(command[1]));
+        connect(datasockfd, (struct sockaddr *) &client_addr, addrlen);
+        
+      } else if (strcmp(command[0], "-g") == 0) { // get [filename]
         printf("get %s\n", command[1]);
-      } else {
+      } else { // invalid command
         printf("huh?\n");
         
       }
       
-      close(newsockfd);
+      close(controlsockfd);
 
 
     } // end while(1)
