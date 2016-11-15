@@ -1,2 +1,2 @@
-gcc -o chatclient chatclient.c;
-chmod u+x ./chatclient;
+gcc -o ftserver ftserver.c;
+chmod u+x ./ftserver;
