@@ -11,14 +11,14 @@ group = parser.add_mutually_exclusive_group()
 group.add_argument("--list","-l", help="list all files on the server", action="store_true")
 group.add_argument("--get","-g", nargs=1, help="get file specified by GET")
 args = parser.parse_args()
-# print args.serverhost
+# print args.get
     
 clientSocket = socket(AF_INET, SOCK_STREAM)
 clientSocket.connect((args.serverhost, args.serverport))
 if args.list:
     clientSocket.send("-l")
 else:
-    clientSocket.send("-g")
+    clientSocket.send("-g " + args.get[0])
     
 response = clientSocket.recv(1024)
 print(response)

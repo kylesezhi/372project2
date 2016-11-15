@@ -37,10 +37,6 @@ int main(int argc, char *argv[])
      int randomPorts[8];
      int currentPort = -1;
      
-     char temp_plaintext[13];
-     char temp_key[13];
-     char temp_cipher[13];
-     
      struct sockaddr_in serv_addr, cli_addr;
      int n, length;
      if (argc != 2) {
@@ -59,15 +55,14 @@ int main(int argc, char *argv[])
      serv_addr.sin_port = htons(portno);
      if (bind(sockfd, (struct sockaddr *) &serv_addr,
               sizeof(serv_addr)) < 0) 
-              error("1ERROR on binding");
+              error("ERROR on binding");
      setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
      listen(sockfd,5);
      clilen = sizeof(cli_addr);
      
 
      while(1) { // MAIN GAME LOOP lolz
-      //  printf("MAIN LOOP SERVER\n"); //TRACE
-      currentPort++;
+       printf("Waiting for connection\n"); //TRACE
        
        newsockfd = accept(sockfd, 
                    (struct sockaddr *) &cli_addr, 
@@ -75,11 +70,15 @@ int main(int argc, char *argv[])
        if (newsockfd < 0) error("ERROR on accept");
             
       // GIVE RANDOM PORT
-      bzero(buffer,BUFFERSIZE+1);
-      snprintf(buffer, 10, "%d", randomPorts[currentPort]);
-      n = write(newsockfd,buffer,5);
-      if (n < 0) error("ERROR writing to socket");
+      // bzero(buffer,BUFFERSIZE+1);
+      // snprintf(buffer, 10, "%d", randomPorts[currentPort]);
+      // n = write(newsockfd,buffer,5);
+      // if (n < 0) error("ERROR writing to socket");
       
+      // GET HELLO
+      bzero(buffer,10);
+      n = read(newsockfd,buffer,4); // get the body
+      printf("command: %s\n", buffer); //TRACE
 
       // GET OK
       // bzero(buffer,10);
@@ -87,8 +86,7 @@ int main(int argc, char *argv[])
       // n = read(newsockfd,header,4); // get the header
       // n = read(newsockfd,buffer,4); // get the body
       
-      // sleep(1); // FIXME wait for client to close, then we close
-      close(newsockfd); //??? without it, it works on MacOS
+      close(newsockfd);
 
 
     } // end while(1)
