@@ -100,25 +100,29 @@ int main(int argc, char *argv[])
       if(strcmp(command[0], "-l") == 0) { // list
         printf("list\n");
         
-        struct addrinfo hints, *res;
-        int datasockfd;
-
-        // first, load up address structs with getaddrinfo():
-
-        memset(&hints, 0, sizeof hints);
-        hints.ai_family = AF_UNSPEC;
-        hints.ai_socktype = SOCK_STREAM;
-
-        getaddrinfo("localhost", command[1], &hints, &res);
-
-        // make a socket:
-
-        datasockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-
-        // connect!
-
-        connect(datasockfd, res->ai_addr, res->ai_addrlen);
-        n = write(datasockfd, "hi there", strlen("hi there"));
+        // ESTABLISH CONNECTION
+        struct sockaddr_in serv_addr;
+        struct hostent *server;
+        
+        int portnum = atoi(command[1]);
+        int sockfdone = socket(AF_INET, SOCK_STREAM, 0);
+        if (sockfdone < 0) 
+            error("ERROR opening socket");
+        server = gethostbyname("localhost"); // TODO
+        if (server == NULL) {
+            fprintf(stderr,"ERROR, no such host\n");
+            exit(0);
+        }
+        
+        bzero((char *) &serv_addr, sizeof(serv_addr));
+        serv_addr.sin_family = AF_INET;
+        bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
+        serv_addr.sin_port = htons(portnum);
+        // printf("DEBUG %s\n", server->h_addr);
+        if (connect(sockfdone,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
+            error("ERROR connecting");
+            
+        n = write(sockfdone, "hi there", strlen("hi there"));
         
         // struct sockaddr_in client_addr;
         // socklen_t addrlen;

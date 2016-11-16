@@ -24,10 +24,10 @@ else:
     
 
 clientSocket = socket(AF_INET, SOCK_STREAM)
-clientSocket.bind((serverName, args.dataport))
+clientSocket.bind((serverName, int(args.dataport)))
 clientSocket.listen(1)
 dataSocket, addr = clientSocket.accept()
-sentence = connectionSocket.recv(1024)
+sentence = dataSocket.recv(1024)
 print(sentence)
 
 
