@@ -82,6 +82,24 @@ int clientConnect(char *host, int portnum) {
   return sockfdone;
 }
 
+void sendListing(int datasockfd) {
+  // hat tip to: http://stackoverflow.com/questions/4204666/how-to-list-files-in-a-directory-in-a-c-program
+  DIR *d;
+  struct dirent *dir;
+  char dirlist[1001];
+  strcpy(dirlist, "");
+  d = opendir(".");
+  if (d) {
+    while ((dir = readdir(d)) != NULL)
+    {
+      strcat(dirlist, dir->d_name);
+      strcat(dirlist, "\n");
+    }
+    closedir(d);
+  }
+  write(datasockfd, dirlist, strlen(dirlist));  
+}
+
 int main(int argc, char *argv[])
 {
      int sockfd, controlsockfd, datasockfd, i;
@@ -131,22 +149,7 @@ int main(int argc, char *argv[])
       if(strcmp(command[0], "-l") == 0) { 
         printf("DEBUG list\n");
         datasockfd = clientConnect(host, atoi(command[1]));
-            
-        // hat tip to: http://stackoverflow.com/questions/4204666/how-to-list-files-in-a-directory-in-a-c-program
-        DIR *d;
-        struct dirent *dir;
-        char dirlist[BUFFERSIZE+1];
-        strcpy(dirlist, "");
-        d = opendir(".");
-        if (d) {
-          while ((dir = readdir(d)) != NULL)
-          {
-            strcat(dirlist, dir->d_name);
-            strcat(dirlist, "\n");
-          }
-          closedir(d);
-        }
-        n = write(datasockfd, dirlist, strlen(dirlist));
+        sendListing(datasockfd);
                 
       // GET [filename]
       } else if (strcmp(command[0], "-g") == 0) { 
