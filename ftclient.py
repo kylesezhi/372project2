@@ -30,11 +30,18 @@ if args.list:
 else:
     controlSocket.send("-g " + args.get[0] + " " + str(args.dataport))
     sentence = controlSocket.recv(1024)
-    if len(sentence) > 0:
+    if len(sentence) > 2:
         print(sentence)
     else:
-        
+        f = open(args.get[0],'wb')
+        clientSocket.listen(1)
+        dataSocket, addr = clientSocket.accept()
+        sentence = dataSocket.recv(1024)
+        while(sentence):
+            f.write(sentence)
+            sentence = dataSocket.recv(1024)
+        f.close()
+        dataSocket.close()
         print("Transfer complete.")
-    
 
 controlSocket.close()

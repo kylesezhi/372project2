@@ -97,7 +97,7 @@ void sendListing(int datasockfd) {
     }
     closedir(d);
   }
-  write(datasockfd, dirlist, strlen(dirlist));  
+  write(datasockfd, dirlist, strlen(dirlist));
 }
 
 int validateFilename(char *filename) {
@@ -108,7 +108,6 @@ int validateFilename(char *filename) {
     while ((dir = readdir(d)) != NULL)
     {
       if(strcmp(filename, dir->d_name) == 0) return 1;
-      // strcat(dirlist, dir->d_name);
     }
     closedir(d);
   }
@@ -170,18 +169,22 @@ int main(int argc, char *argv[])
       } else if (strcmp(command[0], "-g") == 0) { 
         printf("DEBUG get %s\n", command[1]);
         
-        // validate filename
         if(validateFilename(command[1])){
-          printf("DEBUG FILENAME OK\n");
+          printf("DEBUG filename ok\n");
+          write(controlsockfd, "OK", strlen("OK"));
+          
+          datasockfd = clientConnect(host, atoi(command[2]));
+          write(datasockfd, "yolo", strlen("yolo"));
+          
         } else {
-          printf("DEBUG BAD FILENAME\n");
-          write(controlsockfd, "Invalid filename.", strlen("Invalid filename.")); 
+          // printf("DEBUG bad filename\n");
+          write(controlsockfd, "Invalid filename.", strlen("Invalid filename."));
         }
         
       // INVALID COMMAND
       } else { 
         printf("DEBUG huh?\n");
-        
+        write(controlsockfd, "Invalid command.", strlen("Invalid command."));
       }
       close(datasockfd);
       close(controlsockfd);
