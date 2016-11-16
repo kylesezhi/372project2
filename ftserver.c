@@ -84,6 +84,12 @@ int main(int argc, char *argv[])
      while(1) { // MAIN GAME LOOP lolz
        printf("Waiting for connection\n");
        controlsockfd = acceptConnect(sockfd, &cli_addr, &clilen);
+       
+       // EXTRACT NAME OF REMOTE HOST
+       char host[1024];
+       char service[20];
+       getnameinfo((struct sockaddr *) &cli_addr, sizeof(cli_addr), host, sizeof(host), service, sizeof(service), 0);
+       printf("   host: %s\n", host);
       
       // GET COMMAND
       n = receiveMessage(buffer, controlsockfd);
@@ -108,7 +114,7 @@ int main(int argc, char *argv[])
         int sockfdone = socket(AF_INET, SOCK_STREAM, 0);
         if (sockfdone < 0) 
             error("ERROR opening socket");
-        server = gethostbyname("localhost"); // TODO
+        server = gethostbyname(host);
         if (server == NULL) {
             fprintf(stderr,"ERROR, no such host\n");
             exit(0);
