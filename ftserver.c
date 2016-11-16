@@ -116,13 +116,12 @@ int validateFilename(char *filename) {
 
 int main(int argc, char *argv[])
 {
-     int sockfd, controlsockfd, datasockfd, i;
+     int sockfd, controlsockfd, datasockfd, i, bytesread;
      
      const int BUFFERSIZE = 1000;
      char buffer[BUFFERSIZE+1];
      int fp, fp2;
      FILE *file;
-     FILE *file2;
      char *found, *string;
      char command[3][BUFFERSIZE+1];
      
@@ -161,7 +160,7 @@ int main(int argc, char *argv[])
       // EXECUTE COMMAND
       // LIST
       if(strcmp(command[0], "-l") == 0) { 
-        printf("DEBUG list\n");
+        // printf("DEBUG list\n");
         datasockfd = clientConnect(host, atoi(command[1]));
         sendListing(datasockfd);
                 
@@ -174,7 +173,24 @@ int main(int argc, char *argv[])
           write(controlsockfd, "OK", strlen("OK"));
           
           datasockfd = clientConnect(host, atoi(command[2]));
-          write(datasockfd, "yolo", strlen("yolo"));
+          
+          // filename, datasockfd
+          file = fopen(command[1], "r");
+          if (file < 0) error("ERROR could not open file.\n");
+          if (file == NULL) error("ERROR could not open file.\n");
+          
+          while((bytesread = fread(buffer, 1, BUFFERSIZE, file)) > 0) { 
+            printf("DEBUG %s", buffer);
+            buffer[bytesread] = 0; // append with null
+            if (bytesread < BUFFERSIZE) {
+              bytesread--; // we remove \n bc we know we are at the end of file
+              buffer[bytesread] = 0; // remove newline
+            }
+            n = write(sockfd,buffer,strlen(buffer));
+            if (n < 0) error("ERROR writing to socket");
+          }
+          // write(datasockfd, "yolo", strlen("yolo"));
+          fclose(file);
           
         } else {
           // printf("DEBUG bad filename\n");
