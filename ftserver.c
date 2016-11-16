@@ -57,6 +57,30 @@ int receiveMessage(char buffer[], int newsockfd) {
   return n;
 }
 
+int clientConnect(char *host, int portnum) {
+  struct sockaddr_in serv_addr;
+  struct hostent *server;
+  
+  int sockfdone = socket(AF_INET, SOCK_STREAM, 0);
+  if (sockfdone < 0) 
+      error("ERROR opening socket");
+  server = gethostbyname(host);
+  if (server == NULL) {
+      fprintf(stderr,"ERROR, no such host\n");
+      exit(0);
+  }
+  
+  bzero((char *) &serv_addr, sizeof(serv_addr));
+  serv_addr.sin_family = AF_INET;
+  bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
+  serv_addr.sin_port = htons(portnum);
+  // printf("DEBUG %s\n", server->h_addr);
+  if (connect(sockfdone,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
+      error("ERROR connecting");
+
+  return sockfdone;
+}
+
 int main(int argc, char *argv[])
 {
      int sockfd, controlsockfd, datasockfd, i;
@@ -74,8 +98,6 @@ int main(int argc, char *argv[])
      struct sockaddr_in cli_addr;
      socklen_t clilen;
      
-     char host[1024];
-     
      if (argc != 2) {
          fprintf(stderr,"usage: ftserver portnumber\n");
          exit(1);
@@ -88,6 +110,7 @@ int main(int argc, char *argv[])
        controlsockfd = acceptConnect(sockfd, &cli_addr, &clilen);
        
        // EXTRACT NAME OF REMOTE HOST
+       char host[1024];
        char service[20];
        getnameinfo((struct sockaddr *) &cli_addr, sizeof(cli_addr), host, sizeof(host), service, sizeof(service), 0);
       //  printf("   host: %s\n", host);
@@ -109,30 +132,9 @@ int main(int argc, char *argv[])
         
         // CALL CLIENT
         
-        // datasockfd = clientConnect(host);
-        
-        struct sockaddr_in serv_addr;
-        struct hostent *server;
-        
-        int portnum = atoi(command[1]);
-        int sockfdone = socket(AF_INET, SOCK_STREAM, 0);
-        if (sockfdone < 0) 
-            error("ERROR opening socket");
-        server = gethostbyname(host);
-        if (server == NULL) {
-            fprintf(stderr,"ERROR, no such host\n");
-            exit(0);
-        }
-        
-        bzero((char *) &serv_addr, sizeof(serv_addr));
-        serv_addr.sin_family = AF_INET;
-        bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
-        serv_addr.sin_port = htons(portnum);
-        // printf("DEBUG %s\n", server->h_addr);
-        if (connect(sockfdone,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
-            error("ERROR connecting");
+        datasockfd = clientConnect(host, atoi(command[1]));
             
-        n = write(sockfdone, "hi there", strlen("hi there"));
+        n = write(datasockfd, "hi there", strlen("hi there"));
         
         // struct sockaddr_in client_addr;
         // socklen_t addrlen;
