@@ -129,10 +129,9 @@ int main(int argc, char *argv[])
       // EXECUTE COMMAND
       // LIST
       if(strcmp(command[0], "-l") == 0) { 
-        printf("list\n");
+        printf("DEBUG list\n");
         datasockfd = clientConnect(host, atoi(command[1]));
             
-        // n = write(datasockfd, "hi there", strlen("hi there"));
         // hat tip to: http://stackoverflow.com/questions/4204666/how-to-list-files-in-a-directory-in-a-c-program
         DIR *d;
         struct dirent *dir;
@@ -142,8 +141,6 @@ int main(int argc, char *argv[])
         if (d) {
           while ((dir = readdir(d)) != NULL)
           {
-            // n = write(datasockfd, dir->d_name, strlen(dir->d_name));
-            printf("%s\n", dir->d_name);
             strcat(dirlist, dir->d_name);
             strcat(dirlist, "\n");
           }
@@ -153,11 +150,11 @@ int main(int argc, char *argv[])
                 
       // GET [filename]
       } else if (strcmp(command[0], "-g") == 0) { 
-        printf("get %s\n", command[1]);
+        printf("DEBUG get %s\n", command[1]);
         
       // INVALID COMMAND
       } else { 
-        printf("huh?\n");
+        printf("DEBUG huh?\n");
         
       }
       close(datasockfd);
