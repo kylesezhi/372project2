@@ -13,27 +13,21 @@ group = parser.add_mutually_exclusive_group()
 group.add_argument("--list","-l", help="list all files on the server", action="store_true")
 group.add_argument("--get","-g", nargs=1, help="get file specified by GET")
 args = parser.parse_args()
-# print args.get
     
 controlSocket = socket(AF_INET, SOCK_STREAM)
 controlSocket.connect((args.serverhost, args.serverport))
 if args.list:
     controlSocket.send("-l " + str(args.dataport))
+    clientSocket = socket(AF_INET, SOCK_STREAM)
+    clientSocket.bind((serverName, int(args.dataport)))
+    clientSocket.listen(1)
+    dataSocket, addr = clientSocket.accept()
+    sentence = dataSocket.recv(1024)
+    print(sentence)
+    dataSocket.close()
 else:
     controlSocket.send("-g " + args.get[0] + " " + str(args.dataport))
+    print("Transfer complete.")
     
-
-clientSocket = socket(AF_INET, SOCK_STREAM)
-clientSocket.bind((serverName, int(args.dataport)))
-clientSocket.listen(1)
-dataSocket, addr = clientSocket.accept()
-sentence = dataSocket.recv(1024)
-print(sentence)
-
-
-# response = controlSocket.recv(1024)
-# print("server said: " + response)
-
-
 
 controlSocket.close()

@@ -100,6 +100,21 @@ void sendListing(int datasockfd) {
   write(datasockfd, dirlist, strlen(dirlist));  
 }
 
+int validateFilename(char *filename) {
+  DIR *d;
+  struct dirent *dir;
+  d = opendir(".");
+  if (d) {
+    while ((dir = readdir(d)) != NULL)
+    {
+      if(strcmp(filename, dir->d_name) == 0) return 1;
+      // strcat(dirlist, dir->d_name);
+    }
+    closedir(d);
+  }
+  return 0;
+}
+
 int main(int argc, char *argv[])
 {
      int sockfd, controlsockfd, datasockfd, i;
@@ -155,6 +170,13 @@ int main(int argc, char *argv[])
       } else if (strcmp(command[0], "-g") == 0) { 
         printf("DEBUG get %s\n", command[1]);
         
+        // validate filename
+        if(validateFilename(command[1])){
+          printf("FILENAME OK\n");
+        } else {
+          printf("BAD FILENAME\n");
+        }
+        
       // INVALID COMMAND
       } else { 
         printf("DEBUG huh?\n");
@@ -162,7 +184,6 @@ int main(int argc, char *argv[])
       }
       close(datasockfd);
       close(controlsockfd);
-
 
     } // end while(1)
             
