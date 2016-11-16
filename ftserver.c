@@ -13,6 +13,7 @@
 
 #include <errno.h>
 #include <netdb.h>
+#include <dirent.h>
 
 void error(const char *msg)
 {
@@ -132,6 +133,18 @@ int main(int argc, char *argv[])
         datasockfd = clientConnect(host, atoi(command[1]));
             
         n = write(datasockfd, "hi there", strlen("hi there"));
+        DIR *d;
+        struct dirent *dir;
+        d = opendir(".");
+        if (d)
+        {
+          while ((dir = readdir(d)) != NULL)
+          {
+            printf("%s\n", dir->d_name);
+          }
+
+          closedir(d);
+        }
                 
       // GET [filename]
       } else if (strcmp(command[0], "-g") == 0) { 
