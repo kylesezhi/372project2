@@ -113,12 +113,11 @@ int main(int argc, char *argv[])
        char host[1024];
        char service[20];
        getnameinfo((struct sockaddr *) &cli_addr, sizeof(cli_addr), host, sizeof(host), service, sizeof(service), 0);
-      //  printf("   host: %s\n", host);
       
       // GET COMMAND
       n = receiveMessage(buffer, controlsockfd);
       
-       // SPLIT COMMAND
+      // SPLIT COMMAND
       string = buffer;
       i = 0;
       while( (found = strsep(&string," ")) != NULL ) {
@@ -127,30 +126,19 @@ int main(int argc, char *argv[])
       }
       
       // EXECUTE COMMAND
-      if(strcmp(command[0], "-l") == 0) { // list
+      // LIST
+      if(strcmp(command[0], "-l") == 0) { 
         printf("list\n");
-        
-        // CALL CLIENT
-        
         datasockfd = clientConnect(host, atoi(command[1]));
             
         n = write(datasockfd, "hi there", strlen("hi there"));
-        
-        // struct sockaddr_in client_addr;
-        // socklen_t addrlen;
-        // n = getpeername(controlsockfd, (struct sockaddr *) &client_addr, &addrlen);
-        // if (n == -1) error("ERROR getpeername()");
-        // client_addr.sin_port = htons(atoi(command[1]));
-        // 
-        // datasockfd = socket(AF_INET, SOCK_STREAM, 0);
-        // // printf("datasocketfd: %d controlsockfd: %d\n", datasockfd, controlsockfd);
-        // n = connect(datasockfd, (struct sockaddr *) &client_addr, addrlen);
-        // if (n == -1) error("ERROR connect()");
-        // n = write(datasockfd, "hi there", strlen("hi there"));
-        
-      } else if (strcmp(command[0], "-g") == 0) { // get [filename]
+                
+      // GET [filename]
+      } else if (strcmp(command[0], "-g") == 0) { 
         printf("get %s\n", command[1]);
-      } else { // invalid command
+        
+      // INVALID COMMAND
+      } else { 
         printf("huh?\n");
         
       }
