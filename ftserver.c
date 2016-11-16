@@ -74,6 +74,8 @@ int main(int argc, char *argv[])
      struct sockaddr_in cli_addr;
      socklen_t clilen;
      
+     char host[1024];
+     
      if (argc != 2) {
          fprintf(stderr,"usage: ftserver portnumber\n");
          exit(1);
@@ -86,10 +88,9 @@ int main(int argc, char *argv[])
        controlsockfd = acceptConnect(sockfd, &cli_addr, &clilen);
        
        // EXTRACT NAME OF REMOTE HOST
-       char host[1024];
        char service[20];
        getnameinfo((struct sockaddr *) &cli_addr, sizeof(cli_addr), host, sizeof(host), service, sizeof(service), 0);
-       printf("   host: %s\n", host);
+      //  printf("   host: %s\n", host);
       
       // GET COMMAND
       n = receiveMessage(buffer, controlsockfd);
@@ -106,7 +107,10 @@ int main(int argc, char *argv[])
       if(strcmp(command[0], "-l") == 0) { // list
         printf("list\n");
         
-        // ESTABLISH CONNECTION
+        // CALL CLIENT
+        
+        // datasockfd = clientConnect(host);
+        
         struct sockaddr_in serv_addr;
         struct hostent *server;
         
