@@ -172,9 +172,10 @@ int main(int argc, char *argv[])
         
         // validate filename
         if(validateFilename(command[1])){
-          printf("FILENAME OK\n");
+          printf("DEBUG FILENAME OK\n");
         } else {
-          printf("BAD FILENAME\n");
+          printf("DEBUG BAD FILENAME\n");
+          write(controlsockfd, "Invalid filename.", strlen("Invalid filename.")); 
         }
         
       // INVALID COMMAND

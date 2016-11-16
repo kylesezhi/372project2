@@ -16,10 +16,12 @@ args = parser.parse_args()
     
 controlSocket = socket(AF_INET, SOCK_STREAM)
 controlSocket.connect((args.serverhost, args.serverport))
+
+clientSocket = socket(AF_INET, SOCK_STREAM)
+clientSocket.bind((serverName, int(args.dataport)))
+
 if args.list:
     controlSocket.send("-l " + str(args.dataport))
-    clientSocket = socket(AF_INET, SOCK_STREAM)
-    clientSocket.bind((serverName, int(args.dataport)))
     clientSocket.listen(1)
     dataSocket, addr = clientSocket.accept()
     sentence = dataSocket.recv(1024)
@@ -27,7 +29,12 @@ if args.list:
     dataSocket.close()
 else:
     controlSocket.send("-g " + args.get[0] + " " + str(args.dataport))
-    print("Transfer complete.")
+    sentence = controlSocket.recv(1024)
+    if len(sentence) > 0:
+        print(sentence)
+    else:
+        
+        print("Transfer complete.")
     
 
 controlSocket.close()
