@@ -4,6 +4,7 @@ import argparse
 
 serverName = 'flip2.engr.oregonstate.edu'
 
+# setup argument parsing
 parser = argparse.ArgumentParser()
 parser.add_argument("serverhost", help="server name, e.g.: flip2.engr.oregonstate.edu")
 parser.add_argument("serverport", type=int, help="control port number, e.g.: 12012")
@@ -14,6 +15,7 @@ group.add_argument("--list","-l", help="list all files on the server", action="s
 group.add_argument("--get","-g", nargs=1, help="get file specified by GET")
 args = parser.parse_args()
     
+# setup connections
 controlSocket = socket(AF_INET, SOCK_STREAM)
 controlSocket.connect((args.serverhost, args.serverport))
 
@@ -24,24 +26,24 @@ if args.list:
     controlSocket.send("-l " + str(args.dataport))
     clientSocket.listen(1)
     dataSocket, addr = clientSocket.accept()
-    sentence = dataSocket.recv(1024)
-    print(sentence)
+    response = dataSocket.recv(1024)
+    print(response)
     dataSocket.close()
-else:
+else: # get
     controlSocket.send("-g " + args.get[0] + " " + str(args.dataport))
-    sentence = controlSocket.recv(1024)
-    if len(sentence) > 2: # server does not say OK so print error
-        print(sentence)
+    response = controlSocket.recv(1024)
+    if len(response) > 2: # server does not say OK so print error
+        print(response)
     else:
         clientSocket.listen(1)
         dataSocket, addr = clientSocket.accept()
         f = open(args.get[0],'wb')
-        sentence = dataSocket.recv(1024)
-        while(sentence):
-            f.write(sentence)
-            sentence = dataSocket.recv(1024)
-        f.close()
+        response = dataSocket.recv(1024)
+        while(response):
+            f.write(response)
+            response = dataSocket.recv(1024)
         dataSocket.close()
+        f.close()
         print("Transfer complete.")
 
 controlSocket.close()

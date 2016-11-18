@@ -114,6 +114,19 @@ int validateFilename(char *filename) {
   return 0;
 }
 
+void getFile(ing datasockfd, char *filename) {
+  file = fopen(filename, "r");
+  if (file < 0) error("ERROR could not open file.\n");
+  if (file == NULL) error("ERROR could not open file.\n");
+  
+  while((bytesread = fread(buffer, 1, BUFFERSIZE, file)) > 0) { 
+    buffer[bytesread] = 0; // append with null
+    n = write(datasockfd,buffer,strlen(buffer));
+    if (n < 0) error("ERROR writing to socket");
+  }
+  fclose(file);
+}
+
 int main(int argc, char *argv[])
 {
      int sockfd, controlsockfd, datasockfd, i, bytesread;
@@ -166,31 +179,25 @@ int main(int argc, char *argv[])
                 
       // GET [filename]
       } else if (strcmp(command[0], "-g") == 0) { 
-        printf("DEBUG get %s\n", command[1]);
         
         if(validateFilename(command[1])){
           write(controlsockfd, "OK", strlen("OK"));
           
-          printf("connect to %s on %d\n", host, atoi(command[2]));
+          // printf("connect to %s on %d\n", host, atoi(command[2]));
           datasockfd = clientConnect(host, atoi(command[2]));
           
           // filename, datasockfd
-          file = fopen(command[1], "r");
-          if (file < 0) error("ERROR could not open file.\n");
-          if (file == NULL) error("ERROR could not open file.\n");
-          
-          while((bytesread = fread(buffer, 1, BUFFERSIZE, file)) > 0) { 
-            // printf("DEBUG file contents:\n%s", buffer);
-            buffer[bytesread] = 0; // append with null
-            // if (bytesread < BUFFERSIZE) {
-            //   bytesread--; // we remove \n bc we know we are at the end of file
-            //   buffer[bytesread] = 0; // remove newline
-            // }
-            n = write(datasockfd,buffer,strlen(buffer));
-            if (n < 0) error("ERROR writing to socket"); // TODO
-          }
-          // write(datasockfd, "yolo", strlen("yolo"));
-          fclose(file);
+          getFile(datasockfd, command[1]);
+          // file = fopen(command[1], "r");
+          // if (file < 0) error("ERROR could not open file.\n");
+          // if (file == NULL) error("ERROR could not open file.\n");
+          // 
+          // while((bytesread = fread(buffer, 1, BUFFERSIZE, file)) > 0) { 
+          //   buffer[bytesread] = 0; // append with null
+          //   n = write(datasockfd,buffer,strlen(buffer));
+          //   if (n < 0) error("ERROR writing to socket");
+          // }
+          // fclose(file);
           
         } else {
           write(controlsockfd, "Invalid filename.", strlen("Invalid filename."));
@@ -198,7 +205,6 @@ int main(int argc, char *argv[])
         
       // INVALID COMMAND
       } else { 
-        // printf("DEBUG huh?\n");
         write(controlsockfd, "Invalid command.", strlen("Invalid command."));
       }
       close(datasockfd);
