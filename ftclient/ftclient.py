@@ -2,7 +2,7 @@ from socket import *
 import sys
 import argparse
 
-serverName = 'localhost'
+serverName = 'flip2.engr.oregonstate.edu'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("serverhost", help="server name, e.g.: flip2.engr.oregonstate.edu")
