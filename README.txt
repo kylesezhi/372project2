@@ -15,8 +15,8 @@ $ ./ftserver 12012
 List files from the client:
 $ python ftclient.py 12012 12000 -l
 
-Get a file from the server:
+Get a file from the server (put ftclient.py in another folder):
 $ python ftclient.py 12012 12000 -g README.txt
 
-You can also see the usage of the client:
+You can also get help on how to use the client's arguments:
 $ python ftclient.py -h

@@ -184,22 +184,8 @@ int main(int argc, char *argv[])
         
         if(validateFilename(command[1])){
           write(controlsockfd, "OK", strlen("OK"));
-          
-          // printf("connect to %s on %d\n", host, atoi(command[2]));
           datasockfd = clientConnect(host, atoi(command[2]));
-          
-          // filename, datasockfd
           getFile(datasockfd, command[1]);
-          // file = fopen(command[1], "r");
-          // if (file < 0) error("ERROR could not open file.\n");
-          // if (file == NULL) error("ERROR could not open file.\n");
-          // 
-          // while((bytesread = fread(buffer, 1, BUFFERSIZE, file)) > 0) { 
-          //   buffer[bytesread] = 0; // append with null
-          //   n = write(datasockfd,buffer,strlen(buffer));
-          //   if (n < 0) error("ERROR writing to socket");
-          // }
-          // fclose(file);
           
         } else {
           write(controlsockfd, "Invalid filename.", strlen("Invalid filename."));
@@ -214,7 +200,7 @@ int main(int argc, char *argv[])
 
     } // end while(1)
             
-   close(sockfd); // TODO
+   close(sockfd);
      
      return 0; 
 }
