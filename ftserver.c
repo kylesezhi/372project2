@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
      sockfd = setupListen(atoi(argv[1]), &cli_addr, &clilen);
 
      while(1) { // MAIN GAME LOOP lolz
-       printf("Waiting for connection\n");
+       printf("Waiting for connection.\n");
        controlsockfd = acceptConnect(sockfd, &cli_addr, &clilen);
        
        // EXTRACT NAME OF REMOTE HOST
@@ -180,12 +180,12 @@ int main(int argc, char *argv[])
           if (file == NULL) error("ERROR could not open file.\n");
           
           while((bytesread = fread(buffer, 1, BUFFERSIZE, file)) > 0) { 
-            printf("DEBUG file contents:\n%s", buffer);
+            // printf("DEBUG file contents:\n%s", buffer);
             buffer[bytesread] = 0; // append with null
-            if (bytesread < BUFFERSIZE) {
-              bytesread--; // we remove \n bc we know we are at the end of file
-              buffer[bytesread] = 0; // remove newline
-            }
+            // if (bytesread < BUFFERSIZE) {
+            //   bytesread--; // we remove \n bc we know we are at the end of file
+            //   buffer[bytesread] = 0; // remove newline
+            // }
             n = write(datasockfd,buffer,strlen(buffer));
             if (n < 0) error("ERROR writing to socket"); // TODO
           }
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
         
       // INVALID COMMAND
       } else { 
-        printf("DEBUG huh?\n");
+        // printf("DEBUG huh?\n");
         write(controlsockfd, "Invalid command.", strlen("Invalid command."));
       }
       close(datasockfd);
