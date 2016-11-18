@@ -114,12 +114,14 @@ int validateFilename(char *filename) {
   return 0;
 }
 
-void getFile(ing datasockfd, char *filename) {
-  file = fopen(filename, "r");
+void getFile(int datasockfd, char *filename) {
+  FILE *file = fopen(filename, "r");
   if (file < 0) error("ERROR could not open file.\n");
   if (file == NULL) error("ERROR could not open file.\n");
   
-  while((bytesread = fread(buffer, 1, BUFFERSIZE, file)) > 0) { 
+  int bytesread, n;
+  char buffer[1001];
+  while((bytesread = fread(buffer, 1, 1000, file)) > 0) { 
     buffer[bytesread] = 0; // append with null
     n = write(datasockfd,buffer,strlen(buffer));
     if (n < 0) error("ERROR writing to socket");
@@ -129,12 +131,12 @@ void getFile(ing datasockfd, char *filename) {
 
 int main(int argc, char *argv[])
 {
-     int sockfd, controlsockfd, datasockfd, i, bytesread;
+     int sockfd, controlsockfd, datasockfd, i;
      
      const int BUFFERSIZE = 1000;
      char buffer[BUFFERSIZE+1];
      int fp, fp2;
-     FILE *file;
+    //  FILE *file;
      char *found, *string;
      char command[3][BUFFERSIZE+1];
      
