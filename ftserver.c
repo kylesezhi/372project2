@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
      sockfd = setupListen(atoi(argv[1]), &cli_addr, &clilen);
 
      while(1) { // MAIN GAME LOOP lolz
-       printf("Waiting for connection.\n");
+       printf("Waiting for connection.\nPress Ctrl-C to exit.\n");
        controlsockfd = acceptConnect(sockfd, &cli_addr, &clilen);
        
        // EXTRACT NAME OF REMOTE HOST
