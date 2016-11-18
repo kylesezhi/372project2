@@ -169,9 +169,9 @@ int main(int argc, char *argv[])
         printf("DEBUG get %s\n", command[1]);
         
         if(validateFilename(command[1])){
-          printf("DEBUG filename ok\n");
           write(controlsockfd, "OK", strlen("OK"));
           
+          printf("connect to %s on %d\n", host, atoi(command[2]));
           datasockfd = clientConnect(host, atoi(command[2]));
           
           // filename, datasockfd
@@ -180,20 +180,19 @@ int main(int argc, char *argv[])
           if (file == NULL) error("ERROR could not open file.\n");
           
           while((bytesread = fread(buffer, 1, BUFFERSIZE, file)) > 0) { 
-            printf("DEBUG %s", buffer);
+            printf("DEBUG file contents:\n%s", buffer);
             buffer[bytesread] = 0; // append with null
             if (bytesread < BUFFERSIZE) {
               bytesread--; // we remove \n bc we know we are at the end of file
               buffer[bytesread] = 0; // remove newline
             }
-            n = write(sockfd,buffer,strlen(buffer));
-            if (n < 0) error("ERROR writing to socket");
+            n = write(datasockfd,buffer,strlen(buffer));
+            if (n < 0) error("ERROR writing to socket"); // TODO
           }
           // write(datasockfd, "yolo", strlen("yolo"));
           fclose(file);
           
         } else {
-          // printf("DEBUG bad filename\n");
           write(controlsockfd, "Invalid filename.", strlen("Invalid filename."));
         }
         

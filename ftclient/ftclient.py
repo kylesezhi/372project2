@@ -30,12 +30,12 @@ if args.list:
 else:
     controlSocket.send("-g " + args.get[0] + " " + str(args.dataport))
     sentence = controlSocket.recv(1024)
-    if len(sentence) > 2:
+    if len(sentence) > 2: # server does not say OK so print error
         print(sentence)
     else:
-        f = open(args.get[0],'wb')
         clientSocket.listen(1)
         dataSocket, addr = clientSocket.accept()
+        f = open(args.get[0],'wb')
         sentence = dataSocket.recv(1024)
         while(sentence):
             f.write(sentence)
